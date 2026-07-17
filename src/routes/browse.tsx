@@ -74,7 +74,7 @@ function Browse() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                navigate({ search: (prev) => ({ ...prev, q: text || undefined }) });
+                navigate({ search: (prev: { q?: string; cat?: string }) => ({ ...prev, q: text || undefined }) });
               }}
               className="relative mb-4"
             >
@@ -86,13 +86,13 @@ function Browse() {
               <div className="text-xs font-semibold uppercase text-muted-foreground mb-2">Category</div>
               <div className="space-y-1">
                 <button
-                  onClick={() => navigate({ search: (p) => ({ ...p, cat: undefined }) })}
+                  onClick={() => navigate({ search: (p: { q?: string; cat?: string }) => ({ ...p, cat: undefined }) })}
                   className={`w-full text-left text-sm px-2 py-1 rounded-md ${!cat ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"}`}
                 >All</button>
                 {categories.map((c: { id: string; name: string; slug: string; icon: string | null }) => (
                   <button
                     key={c.id}
-                    onClick={() => navigate({ search: (p) => ({ ...p, cat: c.slug }) })}
+                    onClick={() => navigate({ search: (p: { q?: string; cat?: string }) => ({ ...p, cat: c.slug }) })}
                     className={`w-full text-left text-sm px-2 py-1 rounded-md flex items-center gap-2 ${cat === c.slug ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"}`}
                   >
                     <span>{c.icon}</span> {c.name}
