@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, ShoppingBag, Search, MapPin, User, LogOut, Package } from "lucide-react";
+import { Heart, ShoppingBag, Search, MapPin, User, LogOut, Package, LayoutDashboard } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,20 @@ export function SiteHeader() {
         .from("cart_items")
         .select("*", { count: "exact", head: true });
       return count ?? 0;
+    },
+  });
+
+  const { data: isVendor = false } = useQuery({
+    queryKey: ["is-vendor", session?.user.id],
+    enabled: !!session,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session!.user.id)
+        .eq("role", "vendor")
+        .maybeSingle();
+      return !!data;
     },
   });
 
@@ -86,6 +100,11 @@ export function SiteHeader() {
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">{session.user.email}</div>
                   <DropdownMenuSeparator />
+                  {isVendor && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/vendor"><LayoutDashboard className="mr-2 h-4 w-4" />Vendor dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild><Link to="/orders"><Package className="mr-2 h-4 w-4" />My orders</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/wishlist"><Heart className="mr-2 h-4 w-4" />Wishlist</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/profile"><User className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
