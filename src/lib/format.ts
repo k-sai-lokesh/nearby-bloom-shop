@@ -1,6 +1,6 @@
 export const formatPrice = (n: number | string | null | undefined) => {
   const v = typeof n === "string" ? parseFloat(n) : (n ?? 0);
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(v);
 };
 
 export const stockBadge = (stock: number) => {
