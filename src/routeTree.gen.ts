@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
+import { Route as AuthenticatedVendorRouteImport } from './routes/_authenticated/vendor'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
@@ -49,6 +50,11 @@ const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVendorRoute = AuthenticatedVendorRouteImport.update({
+  id: '/vendor',
+  path: '/vendor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/vendor': typeof AuthenticatedVendorRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/vendor': typeof AuthenticatedVendorRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/vendor': typeof AuthenticatedVendorRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/profile'
+    | '/vendor'
     | '/wishlist'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/profile'
+    | '/vendor'
     | '/wishlist'
     | '/product/$id'
   id:
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout'
     | '/_authenticated/orders'
     | '/_authenticated/profile'
+    | '/_authenticated/vendor'
     | '/_authenticated/wishlist'
     | '/product/$id'
   fileRoutesById: FileRoutesById
@@ -194,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWishlistRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vendor': {
+      id: '/_authenticated/vendor'
+      path: '/vendor'
+      fullPath: '/vendor'
+      preLoaderRoute: typeof AuthenticatedVendorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -230,6 +249,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedVendorRoute: typeof AuthenticatedVendorRoute
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
 }
 
@@ -238,6 +258,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedVendorRoute: AuthenticatedVendorRoute,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
 }
 
