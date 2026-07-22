@@ -103,18 +103,20 @@ export function SmartRestock({ products, items }: SmartRestockProps) {
 
   const flash = useMutation({
     mutationFn: async ({ id, enable, price }: { id: string; enable: boolean; price: number }) => {
+      const endsAt = enable ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() : null;
       const { error } = await supabase
         .from("products")
         .update({
           is_flash_sale: enable,
           flash_price: enable ? Math.round(price * 0.8) : null,
+          flash_sale_ends_at: endsAt,
         })
         .eq("id", id);
       if (error) throw error;
     },
     onSuccess: (_d, v) => {
       qc.invalidateQueries({ queryKey: ["vendor-stats"] });
-      toast.success(v.enable ? "Flash sale live · 20% off" : "Flash sale ended");
+      toast.success(v.enable ? "Flash sale live · 20% off · ends in 2h" : "Flash sale ended");
     },
     onError: (e: Error) => toast.error(e.message),
   });
