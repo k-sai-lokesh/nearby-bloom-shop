@@ -87,11 +87,11 @@ export function SmartRestock({ products, items }: SmartRestockProps) {
   const flashCount = suggestions.filter((s) => s.kind === "flash").length;
 
   const restock = useMutation({
-    mutationFn: async ({ id, addQty }: { id: string; addQty: number; currentStock: number }) => {
+    mutationFn: async (vars: { id: string; addQty: number; currentStock: number }) => {
       const { error } = await supabase
         .from("products")
-        .update({ stock: (arguments[0] as { currentStock: number }).currentStock + addQty })
-        .eq("id", id);
+        .update({ stock: vars.currentStock + vars.addQty })
+        .eq("id", vars.id);
       if (error) throw error;
     },
     onSuccess: () => {
