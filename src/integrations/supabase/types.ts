@@ -154,6 +154,7 @@ export type Database = {
           created_at: string
           description: string | null
           flash_price: number | null
+          flash_sale_ends_at: string | null
           id: string
           image_url: string | null
           is_flash_sale: boolean | null
@@ -168,6 +169,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           flash_price?: number | null
+          flash_sale_ends_at?: string | null
           id?: string
           image_url?: string | null
           is_flash_sale?: boolean | null
@@ -182,6 +184,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           flash_price?: number | null
+          flash_sale_ends_at?: string | null
           id?: string
           image_url?: string | null
           is_flash_sale?: boolean | null
