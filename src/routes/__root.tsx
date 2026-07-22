@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
+import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
 
 function NotFoundComponent() {
   return (
