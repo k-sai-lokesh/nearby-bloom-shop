@@ -118,6 +118,7 @@ function RootComponent() {
         <SiteFooter />
       </div>
       <Toaster position="top-center" richColors />
+      <FlashSaleNotifier />
     </QueryClientProvider>
   );
 }
