@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatPrice } from "@/lib/format";
 import { DollarSign, ShoppingBag, Clock, CheckCircle2, TrendingUp, Store as StoreIcon } from "lucide-react";
+import { SmartRestock } from "@/components/smart-restock";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
   component: VendorDashboard,
@@ -59,7 +60,7 @@ function VendorDashboard() {
       // Products for this store
       const { data: products } = await supabase
         .from("products")
-        .select("id, name, image_url, stock")
+        .select("id, name, image_url, stock, price, flash_price, is_flash_sale")
         .eq("store_id", store!.id);
       const productIds = (products ?? []).map((p) => p.id);
       if (productIds.length === 0) {
@@ -158,7 +159,9 @@ function VendorDashboard() {
         <StatCard icon={<CheckCircle2 className="h-4 w-4" />} label="Completed" value={String(completedOrderIds.size)} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <SmartRestock products={products as any} items={items.map((i) => ({ product_id: i.product_id, quantity: i.quantity, created_at: i.created_at }))} />
+
+      <div className="grid gap-6 lg:grid-cols-3 mt-6">
         <Card className="lg:col-span-2 p-6 rounded-3xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-semibold text-lg">Recent orders</h2>
