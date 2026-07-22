@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatPrice } from "@/lib/format";
 import { DollarSign, ShoppingBag, Clock, CheckCircle2, TrendingUp, Store as StoreIcon } from "lucide-react";
+import { SmartRestock } from "@/components/smart-restock";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
   component: VendorDashboard,
