@@ -59,7 +59,7 @@ function VendorDashboard() {
       // Products for this store
       const { data: products } = await supabase
         .from("products")
-        .select("id, name, image_url, stock")
+        .select("id, name, image_url, stock, price, flash_price, is_flash_sale")
         .eq("store_id", store!.id);
       const productIds = (products ?? []).map((p) => p.id);
       if (productIds.length === 0) {
