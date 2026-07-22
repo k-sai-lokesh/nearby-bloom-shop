@@ -159,7 +159,9 @@ function VendorDashboard() {
         <StatCard icon={<CheckCircle2 className="h-4 w-4" />} label="Completed" value={String(completedOrderIds.size)} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <SmartRestock products={products as any} items={items.map((i) => ({ product_id: i.product_id, quantity: i.quantity, created_at: i.created_at }))} />
+
+      <div className="grid gap-6 lg:grid-cols-3 mt-6">
         <Card className="lg:col-span-2 p-6 rounded-3xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display font-semibold text-lg">Recent orders</h2>
