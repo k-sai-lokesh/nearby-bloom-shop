@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Flame, X } from "lucide-react";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, stockBadge } from "@/lib/format";
 
 type LiveSale = {
   id: string;
@@ -11,6 +11,7 @@ type LiveSale = {
   image_url: string | null;
   price: number;
   flash_price: number | null;
+  stock: number;
   ends_at: number; // epoch ms
 };
 
