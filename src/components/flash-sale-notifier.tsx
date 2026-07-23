@@ -70,6 +70,7 @@ export function FlashSaleNotifier() {
             image_url: string | null;
             price: number | string;
             flash_price: number | string | null;
+            stock: number | string | null;
             is_flash_sale: boolean | null;
             flash_sale_ends_at: string | null;
           };
@@ -84,6 +85,7 @@ export function FlashSaleNotifier() {
               image_url: p.image_url,
               price: Number(p.price),
               flash_price: p.flash_price !== null ? Number(p.flash_price) : null,
+              stock: Number(p.stock ?? 0),
               ends_at: +new Date(p.flash_sale_ends_at as string),
             };
             setLive((cur) => (cur.some((s) => s.id === sale.id) ? cur : [sale, ...cur]));
