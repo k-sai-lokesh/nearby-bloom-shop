@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Flame, X } from "lucide-react";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, stockBadge } from "@/lib/format";
 
 type LiveSale = {
   id: string;
@@ -11,6 +11,7 @@ type LiveSale = {
   image_url: string | null;
   price: number;
   flash_price: number | null;
+  stock: number;
   ends_at: number; // epoch ms
 };
 
@@ -35,7 +36,7 @@ export function FlashSaleNotifier() {
   useEffect(() => {
     supabase
       .from("products")
-      .select("id, name, image_url, price, flash_price, flash_sale_ends_at")
+      .select("id, name, image_url, price, flash_price, stock, flash_sale_ends_at")
       .eq("is_flash_sale", true)
       .then(({ data }) => {
         if (!data) return;
@@ -48,6 +49,7 @@ export function FlashSaleNotifier() {
             image_url: p.image_url,
             price: Number(p.price),
             flash_price: p.flash_price !== null ? Number(p.flash_price) : null,
+            stock: Number(p.stock ?? 0),
             ends_at: +new Date(p.flash_sale_ends_at as string),
           }));
         setLive(active);
@@ -68,6 +70,7 @@ export function FlashSaleNotifier() {
             image_url: string | null;
             price: number | string;
             flash_price: number | string | null;
+            stock: number | string | null;
             is_flash_sale: boolean | null;
             flash_sale_ends_at: string | null;
           };
@@ -82,18 +85,21 @@ export function FlashSaleNotifier() {
               image_url: p.image_url,
               price: Number(p.price),
               flash_price: p.flash_price !== null ? Number(p.flash_price) : null,
+              stock: Number(p.stock ?? 0),
               ends_at: +new Date(p.flash_sale_ends_at as string),
             };
             setLive((cur) => (cur.some((s) => s.id === sale.id) ? cur : [sale, ...cur]));
-            toast(
-              `🔥 Flash sale nearby: ${p.name}`,
-              {
-                description: sale.flash_price
-                  ? `Now ${formatPrice(sale.flash_price)} — limited time!`
-                  : "Limited time only",
-                duration: 8000,
-              },
-            );
+            const pct =
+              sale.flash_price !== null && sale.price > 0
+                ? Math.round(((sale.price - sale.flash_price) / sale.price) * 100)
+                : 0;
+            const stockLabel = stockBadge(sale.stock).label;
+            toast(`🔥 Flash sale nearby: ${p.name}`, {
+              description: sale.flash_price
+                ? `${formatPrice(sale.flash_price)} (${pct}% off) · ${stockLabel}`
+                : `Limited time · ${stockLabel}`,
+              duration: 8000,
+            });
           } else if (!isOn && wasOn) {
             setLive((cur) => cur.filter((s) => s.id !== p.id));
           }
@@ -139,6 +145,18 @@ function FlashSaleCard({
 
   if (ms === 0) return null;
 
+  const discountPct =
+    sale.flash_price !== null && sale.price > 0
+      ? Math.round(((sale.price - sale.flash_price) / sale.price) * 100)
+      : 0;
+  const stock = stockBadge(sale.stock);
+  const stockTones: Record<string, string> = {
+    success: "bg-success/15 text-success-foreground border border-success/30",
+    warning: "bg-warning/20 text-warning-foreground border border-warning/40",
+    destructive: "bg-destructive/15 text-destructive border border-destructive/30",
+  };
+  const soldOut = sale.stock <= 0;
+
   return (
     <div className="glass-panel rounded-2xl p-3 border border-primary/30 shadow-[var(--shadow-glow)] animate-in slide-in-from-bottom-4 fade-in">
       <div className="flex items-start gap-3">
@@ -152,22 +170,33 @@ function FlashSaleCard({
             <Flame className="h-3.5 w-3.5" /> Flash sale nearby
           </div>
           <p className="font-semibold text-sm truncate mt-0.5">{sale.name}</p>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
             {sale.flash_price !== null && (
               <>
                 <span className="text-sm font-bold text-primary">{formatPrice(sale.flash_price)}</span>
                 <span className="text-xs text-muted-foreground line-through">{formatPrice(sale.price)}</span>
+                {discountPct > 0 && (
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full gradient-hero text-white">
+                    -{discountPct}%
+                  </span>
+                )}
               </>
             )}
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${stockTones[stock.tone]}`}>
+              {stock.label}
+            </span>
           </div>
           <div className="flex items-center justify-between mt-2 gap-2">
             <span className="text-xs font-mono tabular-nums text-foreground/80">Ends in {label}</span>
             <Link
               to="/product/$id"
               params={{ id: sale.id }}
-              className="text-xs font-medium rounded-full px-3 py-1 gradient-hero text-white"
+              className={`text-xs font-medium rounded-full px-3 py-1 text-white ${
+                soldOut ? "bg-muted-foreground/50 pointer-events-none" : "gradient-hero"
+              }`}
+              aria-disabled={soldOut}
             >
-              Grab now
+              {soldOut ? "Sold out" : "Grab now"}
             </Link>
           </div>
         </div>
