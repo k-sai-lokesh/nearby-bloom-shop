@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Flame, X } from "lucide-react";
 import { formatPrice, stockBadge } from "@/lib/format";
+
 
 type LiveSale = {
   id: string;
@@ -139,6 +141,10 @@ function FlashSaleCard({
   onExpire: () => void;
 }) {
   const { ms, label } = useCountdown(sale.ends_at);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [reserving, setReserving] = useState(false);
+  const [soldOutLocal, setSoldOutLocal] = useState(false);
   useEffect(() => {
     if (ms === 0) onExpire();
   }, [ms, onExpire]);
@@ -155,7 +161,40 @@ function FlashSaleCard({
     warning: "bg-warning/20 text-warning-foreground border border-warning/40",
     destructive: "bg-destructive/15 text-destructive border border-destructive/30",
   };
-  const soldOut = sale.stock <= 0;
+  const soldOut = sale.stock <= 0 || soldOutLocal;
+
+  async function grab() {
+    if (reserving || soldOut) return;
+    setReserving(true);
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      if (!auth.user) {
+        navigate({ to: "/auth", search: { redirect: `/product/${sale.id}` } });
+        return;
+      }
+      const { error } = await supabase.rpc("reserve_flash_item", {
+        p_product_id: sale.id,
+        p_quantity: 1,
+      });
+      if (error) {
+        if (error.message.includes("OUT_OF_STOCK")) {
+          setSoldOutLocal(true);
+          toast.error("Out of stock — someone just grabbed the last one.");
+        } else if (error.message.includes("AUTH_REQUIRED")) {
+          navigate({ to: "/auth", search: { redirect: `/product/${sale.id}` } });
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
+      qc.invalidateQueries({ queryKey: ["cart"] });
+      qc.invalidateQueries({ queryKey: ["cart-count"] });
+      toast.success(`Reserved ${sale.name} in your cart`);
+      navigate({ to: "/cart" });
+    } finally {
+      setReserving(false);
+    }
+  }
 
   return (
     <div className="glass-panel rounded-2xl p-3 border border-primary/30 shadow-[var(--shadow-glow)] animate-in slide-in-from-bottom-4 fade-in">
@@ -169,7 +208,9 @@ function FlashSaleCard({
           <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
             <Flame className="h-3.5 w-3.5" /> Flash sale nearby
           </div>
-          <p className="font-semibold text-sm truncate mt-0.5">{sale.name}</p>
+          <Link to="/product/$id" params={{ id: sale.id }} className="font-semibold text-sm truncate mt-0.5 block hover:underline">
+            {sale.name}
+          </Link>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             {sale.flash_price !== null && (
               <>
@@ -188,16 +229,16 @@ function FlashSaleCard({
           </div>
           <div className="flex items-center justify-between mt-2 gap-2">
             <span className="text-xs font-mono tabular-nums text-foreground/80">Ends in {label}</span>
-            <Link
-              to="/product/$id"
-              params={{ id: sale.id }}
+            <button
+              type="button"
+              onClick={grab}
+              disabled={soldOut || reserving}
               className={`text-xs font-medium rounded-full px-3 py-1 text-white ${
-                soldOut ? "bg-muted-foreground/50 pointer-events-none" : "gradient-hero"
-              }`}
-              aria-disabled={soldOut}
+                soldOut ? "bg-muted-foreground/50 cursor-not-allowed" : "gradient-hero"
+              } ${reserving ? "opacity-70" : ""}`}
             >
-              {soldOut ? "Sold out" : "Grab now"}
-            </Link>
+              {soldOut ? "Sold out" : reserving ? "Reserving…" : "Grab now"}
+            </button>
           </div>
         </div>
         <button
@@ -211,3 +252,4 @@ function FlashSaleCard({
     </div>
   );
 }
+
