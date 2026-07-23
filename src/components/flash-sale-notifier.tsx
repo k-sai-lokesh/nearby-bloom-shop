@@ -89,15 +89,17 @@ export function FlashSaleNotifier() {
               ends_at: +new Date(p.flash_sale_ends_at as string),
             };
             setLive((cur) => (cur.some((s) => s.id === sale.id) ? cur : [sale, ...cur]));
-            toast(
-              `🔥 Flash sale nearby: ${p.name}`,
-              {
-                description: sale.flash_price
-                  ? `Now ${formatPrice(sale.flash_price)} — limited time!`
-                  : "Limited time only",
-                duration: 8000,
-              },
-            );
+            const pct =
+              sale.flash_price !== null && sale.price > 0
+                ? Math.round(((sale.price - sale.flash_price) / sale.price) * 100)
+                : 0;
+            const stockLabel = stockBadge(sale.stock).label;
+            toast(`🔥 Flash sale nearby: ${p.name}`, {
+              description: sale.flash_price
+                ? `${formatPrice(sale.flash_price)} (${pct}% off) · ${stockLabel}`
+                : `Limited time · ${stockLabel}`,
+              duration: 8000,
+            });
           } else if (!isOn && wasOn) {
             setLive((cur) => cur.filter((s) => s.id !== p.id));
           }
