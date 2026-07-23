@@ -384,6 +384,10 @@ export type Database = {
         Args: { p_address: string; p_city: string; p_phone: string }
         Returns: string
       }
+      reserve_flash_item: {
+        Args: { p_product_id: string; p_quantity?: number }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "customer" | "vendor" | "admin"
