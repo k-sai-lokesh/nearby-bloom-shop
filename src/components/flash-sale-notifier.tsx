@@ -36,7 +36,7 @@ export function FlashSaleNotifier() {
   useEffect(() => {
     supabase
       .from("products")
-      .select("id, name, image_url, price, flash_price, flash_sale_ends_at")
+      .select("id, name, image_url, price, flash_price, stock, flash_sale_ends_at")
       .eq("is_flash_sale", true)
       .then(({ data }) => {
         if (!data) return;
@@ -49,6 +49,7 @@ export function FlashSaleNotifier() {
             image_url: p.image_url,
             price: Number(p.price),
             flash_price: p.flash_price !== null ? Number(p.flash_price) : null,
+            stock: Number(p.stock ?? 0),
             ends_at: +new Date(p.flash_sale_ends_at as string),
           }));
         setLive(active);
