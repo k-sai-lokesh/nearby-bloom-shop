@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/format";
 import { Package, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
+import { toast } from "sonner";
+import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
+import { statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/orders")({
   validateSearch: z.object({ placed: z.string().optional() }),
@@ -14,16 +18,53 @@ export const Route = createFileRoute("/_authenticated/orders")({
 
 function Orders() {
   const { placed } = Route.useSearch();
+  const qc = useQueryClient();
+
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
       const { data } = await supabase
         .from("orders")
-        .select("id,total,status,address,city,created_at,order_items(id,product_name,product_image,price,quantity)")
+        .select(
+          "id,total,status,address,city,created_at,estimated_delivery,order_items(id,product_name,product_image,price,quantity)",
+        )
         .order("created_at", { ascending: false });
       return data ?? [];
     },
   });
+
+  const { data: events = [] } = useQuery({
+    queryKey: ["order-events"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("order_events")
+        .select("id,order_id,status,note,created_at")
+        .order("created_at", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  // Live order status updates
+  useEffect(() => {
+    const channel = supabase
+      .channel("order-tracking")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
+        const next = payload.new as { status: string };
+        const prev = payload.old as { status?: string };
+        if (next.status !== prev?.status) {
+          toast.success(`Order update: ${statusLabel(next.status)}`);
+        }
+        qc.invalidateQueries({ queryKey: ["orders"] });
+        qc.invalidateQueries({ queryKey: ["order-events"] });
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "order_events" }, () => {
+        qc.invalidateQueries({ queryKey: ["order-events"] });
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   if (isLoading) return <div className="mx-auto max-w-5xl px-4 py-16">Loading…</div>;
 
@@ -57,10 +98,19 @@ function Orders() {
                   <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()}</p>
                 </div>
                 <div className="text-right">
-                  <Badge className="rounded-full bg-success/15 text-success-foreground border-success/30 border capitalize">{o.status}</Badge>
+                  <Badge className="rounded-full bg-success/15 text-success-foreground border-success/30 border">{statusLabel(o.status)}</Badge>
                   <p className="mt-1 font-bold">{formatPrice(o.total)}</p>
                 </div>
               </div>
+
+              <div className="mb-4">
+                <OrderTracker
+                  status={o.status}
+                  estimatedDelivery={o.estimated_delivery}
+                  events={events.filter((e) => e.order_id === o.id) as OrderEvent[]}
+                />
+              </div>
+
               <div className="grid gap-2 sm:grid-cols-2">
                 {o.order_items?.map((it) => (
                   <div key={it.id} className="flex items-center gap-3">
