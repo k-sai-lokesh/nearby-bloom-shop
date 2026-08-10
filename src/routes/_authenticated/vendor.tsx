@@ -11,6 +11,8 @@ import { DollarSign, ShoppingBag, Clock, CheckCircle2, TrendingUp, Store as Stor
 import { SmartRestock } from "@/components/smart-restock";
 import { toast } from "sonner";
 import { nextStage, statusLabel } from "@/lib/order-status";
+import { DeliveryProofDialog } from "@/components/delivery-proof";
+
 
 export const Route = createFileRoute("/_authenticated/vendor")({
   component: VendorDashboard,
