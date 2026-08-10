@@ -109,7 +109,13 @@ function Orders() {
                   estimatedDelivery={o.estimated_delivery}
                   events={events.filter((e) => e.order_id === o.id) as OrderEvent[]}
                 />
+                <DeliveryProofView
+                  path={o.delivery_proof_path}
+                  note={o.delivery_note}
+                  deliveredAt={o.delivered_at}
+                />
               </div>
+
 
               <div className="grid gap-2 sm:grid-cols-2">
                 {o.order_items?.map((it) => (
