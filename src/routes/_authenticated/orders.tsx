@@ -10,6 +10,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
 import { statusLabel } from "@/lib/order-status";
+import { DeliveryProofView } from "@/components/delivery-proof";
+
 
 export const Route = createFileRoute("/_authenticated/orders")({
   validateSearch: z.object({ placed: z.string().optional() }),
@@ -26,7 +28,7 @@ function Orders() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id,total,status,address,city,created_at,estimated_delivery,order_items(id,product_name,product_image,price,quantity)",
+          "id,total,status,address,city,created_at,estimated_delivery,delivery_proof_path,delivery_note,delivered_at,order_items(id,product_name,product_image,price,quantity)",
         )
         .order("created_at", { ascending: false });
       return data ?? [];
@@ -109,7 +111,13 @@ function Orders() {
                   estimatedDelivery={o.estimated_delivery}
                   events={events.filter((e) => e.order_id === o.id) as OrderEvent[]}
                 />
+                <DeliveryProofView
+                  path={o.delivery_proof_path}
+                  note={o.delivery_note}
+                  deliveredAt={o.delivered_at}
+                />
               </div>
+
 
               <div className="grid gap-2 sm:grid-cols-2">
                 {o.order_items?.map((it) => (

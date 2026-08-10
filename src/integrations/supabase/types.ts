@@ -152,6 +152,9 @@ export type Database = {
           address: string
           city: string
           created_at: string
+          delivered_at: string | null
+          delivery_note: string | null
+          delivery_proof_path: string | null
           estimated_delivery: string | null
           id: string
           phone: string | null
@@ -164,6 +167,9 @@ export type Database = {
           address: string
           city: string
           created_at?: string
+          delivered_at?: string | null
+          delivery_note?: string | null
+          delivery_proof_path?: string | null
           estimated_delivery?: string | null
           id?: string
           phone?: string | null
@@ -176,6 +182,9 @@ export type Database = {
           address?: string
           city?: string
           created_at?: string
+          delivered_at?: string | null
+          delivery_note?: string | null
+          delivery_proof_path?: string | null
           estimated_delivery?: string | null
           id?: string
           phone?: string | null
