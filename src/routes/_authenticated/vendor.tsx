@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatPrice } from "@/lib/format";
 import { DollarSign, ShoppingBag, Clock, CheckCircle2, TrendingUp, Store as StoreIcon } from "lucide-react";
 import { SmartRestock } from "@/components/smart-restock";
+import { toast } from "sonner";
+import { nextStage, statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
   component: VendorDashboard,
@@ -16,6 +18,7 @@ export const Route = createFileRoute("/_authenticated/vendor")({
 
 function VendorDashboard() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,6 +89,18 @@ function VendorDashboard() {
       }));
       return { products: products ?? [], items: flat };
     },
+  });
+
+  const advance = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase.from("orders").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) => {
+      qc.invalidateQueries({ queryKey: ["vendor-stats"] });
+      toast.success(`Order marked ${statusLabel(v.status)}`);
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   if (roleLoading || !isVendor) {
@@ -177,6 +192,7 @@ function VendorDashboard() {
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="text-right">Delivery</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -184,8 +200,23 @@ function VendorDashboard() {
                   <TableRow key={o.id}>
                     <TableCell className="font-mono text-xs">{o.id.slice(0, 8)}</TableCell>
                     <TableCell className="text-sm">{new Date(o.created_at).toLocaleString()}</TableCell>
-                    <TableCell><Badge variant="outline" className="capitalize">{o.status}</Badge></TableCell>
+                    <TableCell><Badge variant="outline">{statusLabel(o.status)}</Badge></TableCell>
                     <TableCell className="text-right font-semibold">{formatPrice(o.total)}</TableCell>
+                    <TableCell className="text-right">
+                      {nextStage(o.status) ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full"
+                          disabled={advance.isPending}
+                          onClick={() => advance.mutate({ id: o.id, status: nextStage(o.status)! })}
+                        >
+                          Mark {statusLabel(nextStage(o.status)!)}
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Done</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
