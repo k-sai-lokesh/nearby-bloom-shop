@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -170,12 +170,4 @@ export function DeliveryProofView({
       {note && <p className="mt-2 text-xs text-muted-foreground">“{note}”</p>}
     </div>
   );
-}
-
-export function useInvalidateOrders() {
-  const qc = useQueryClient();
-  return () => {
-    qc.invalidateQueries({ queryKey: ["orders"] });
-    qc.invalidateQueries({ queryKey: ["vendor-stats"] });
-  };
 }
