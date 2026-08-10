@@ -203,7 +203,12 @@ function VendorDashboard() {
                     <TableCell><Badge variant="outline">{statusLabel(o.status)}</Badge></TableCell>
                     <TableCell className="text-right font-semibold">{formatPrice(o.total)}</TableCell>
                     <TableCell className="text-right">
-                      {nextStage(o.status) ? (
+                      {nextStage(o.status) === "delivered" ? (
+                        <DeliveryProofDialog
+                          orderId={o.id}
+                          onDelivered={() => qc.invalidateQueries({ queryKey: ["vendor-stats"] })}
+                        />
+                      ) : nextStage(o.status) ? (
                         <Button
                           size="sm"
                           variant="outline"
@@ -217,6 +222,7 @@ function VendorDashboard() {
                         <span className="text-xs text-muted-foreground">Done</span>
                       )}
                     </TableCell>
+
                   </TableRow>
                 ))}
               </TableBody>
