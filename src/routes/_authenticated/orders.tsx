@@ -10,6 +10,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
 import { statusLabel } from "@/lib/order-status";
+import { DeliveryProofView } from "@/components/delivery-proof";
+
 
 export const Route = createFileRoute("/_authenticated/orders")({
   validateSearch: z.object({ placed: z.string().optional() }),
