@@ -70,6 +70,38 @@ export type Database = {
         }
         Relationships: []
       }
+      order_events: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
@@ -120,9 +152,11 @@ export type Database = {
           address: string
           city: string
           created_at: string
+          estimated_delivery: string | null
           id: string
           phone: string | null
           status: string
+          status_updated_at: string
           total: number
           user_id: string
         }
@@ -130,9 +164,11 @@ export type Database = {
           address: string
           city: string
           created_at?: string
+          estimated_delivery?: string | null
           id?: string
           phone?: string | null
           status?: string
+          status_updated_at?: string
           total: number
           user_id: string
         }
@@ -140,9 +176,11 @@ export type Database = {
           address?: string
           city?: string
           created_at?: string
+          estimated_delivery?: string | null
           id?: string
           phone?: string | null
           status?: string
+          status_updated_at?: string
           total?: number
           user_id?: string
         }
