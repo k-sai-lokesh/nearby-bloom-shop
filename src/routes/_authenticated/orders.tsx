@@ -26,7 +26,7 @@ function Orders() {
       const { data } = await supabase
         .from("orders")
         .select(
-          "id,total,status,address,city,created_at,estimated_delivery,order_items(id,product_name,product_image,price,quantity)",
+          "id,total,status,address,city,created_at,estimated_delivery,delivery_proof_path,delivery_note,delivered_at,order_items(id,product_name,product_image,price,quantity)",
         )
         .order("created_at", { ascending: false });
       return data ?? [];
