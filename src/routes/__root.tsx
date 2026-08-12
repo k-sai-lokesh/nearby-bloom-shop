@@ -122,13 +122,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0">
         <SiteHeader />
         <main className="flex-1">
           <Outlet />
         </main>
         <SiteFooter />
       </div>
+      <MobileTabBar />
       <Toaster position="top-center" richColors />
       <FlashSaleNotifier />
     </QueryClientProvider>
