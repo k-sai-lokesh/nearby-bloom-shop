@@ -15,6 +15,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
 import { initNativeShell } from "@/lib/native";
+import { MobileTabBar } from "@/components/mobile-tab-bar";
 
 function NotFoundComponent() {
   return (

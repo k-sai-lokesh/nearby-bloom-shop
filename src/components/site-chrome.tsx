@@ -1,10 +1,10 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, ShoppingBag, Search, MapPin, User, LogOut, Package, LayoutDashboard } from "lucide-react";
+import { Heart, ShoppingBag, Search, MapPin, User, LogOut, Package, LayoutDashboard, ChevronLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,9 @@ import {
 
 export function SiteHeader() {
   const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isRoot = pathname === "/";
   const [q, setQ] = useState("");
   const [session, setSession] = useState<Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]>(null);
 
