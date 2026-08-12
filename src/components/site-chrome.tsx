@@ -55,7 +55,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-40 glass-panel border-b border-glass-border">
+    <header className="sticky top-0 z-40 glass-panel border-b border-glass-border pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="h-9 w-9 rounded-xl gradient-hero grid place-items-center text-white font-bold">H</div>

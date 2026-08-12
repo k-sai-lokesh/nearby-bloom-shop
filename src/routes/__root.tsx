@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
+import { initNativeShell } from "@/lib/native";
 
 function NotFoundComponent() {
   return (
@@ -108,6 +109,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    initNativeShell(() => router.history.back()).then((fn) => {
+      cleanup = fn ?? undefined;
+    });
+    return () => cleanup?.();
+  }, [router]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col">

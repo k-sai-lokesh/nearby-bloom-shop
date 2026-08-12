@@ -167,6 +167,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior-y: none;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
