@@ -102,10 +102,10 @@ export function SiteHeader() {
           </Link>
           {session ? (
             <>
-              <Link to="/wishlist">
+              <Link to="/wishlist" className="hidden sm:block">
                 <Button variant="ghost" size="icon" aria-label="Wishlist"><Heart className="h-5 w-5" /></Button>
               </Link>
-              <Link to="/cart" className="relative">
+              <Link to="/cart" className="relative hidden md:block">
                 <Button variant="ghost" size="icon" aria-label="Cart">
                   <ShoppingBag className="h-5 w-5" />
                 </Button>
