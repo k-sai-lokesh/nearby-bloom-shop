@@ -15,6 +15,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
 import { initNativeShell } from "@/lib/native";
+import { MobileTabBar } from "@/components/mobile-tab-bar";
 
 function NotFoundComponent() {
   return (
@@ -121,13 +122,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0">
         <SiteHeader />
         <main className="flex-1">
           <Outlet />
         </main>
         <SiteFooter />
       </div>
+      <MobileTabBar />
       <Toaster position="top-center" richColors />
       <FlashSaleNotifier />
     </QueryClientProvider>
