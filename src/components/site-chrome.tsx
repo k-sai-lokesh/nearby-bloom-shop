@@ -56,21 +56,40 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 glass-panel border-b border-glass-border pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="h-9 w-9 rounded-xl gradient-hero grid place-items-center text-white font-bold">H</div>
-          <span className="font-display font-bold text-lg hidden sm:inline">HyperLocal</span>
-        </Link>
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-2 sm:gap-4 px-4">
+        {isRoot ? (
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <div className="h-9 w-9 rounded-xl gradient-hero grid place-items-center text-white font-bold">H</div>
+            <span className="font-display font-bold text-lg hidden sm:inline">HyperLocal</span>
+          </Link>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Go back"
+              className="md:hidden shrink-0"
+              onClick={() => router.history.back()}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <Link to="/" className="hidden md:flex items-center gap-2 shrink-0">
+              <div className="h-9 w-9 rounded-xl gradient-hero grid place-items-center text-white font-bold">H</div>
+              <span className="font-display font-bold text-lg">HyperLocal</span>
+            </Link>
+          </>
+        )}
 
         <form onSubmit={onSubmit} className="flex-1 max-w-xl relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search local goods, bakery, produce…"
+            placeholder="Search local goods…"
             className="pl-9 h-10 rounded-full bg-background/70 border-border"
           />
         </form>
+
 
         <nav className="flex items-center gap-1">
           <Link to="/browse" search={{ q: undefined, cat: undefined }} className="hidden md:inline-flex">
