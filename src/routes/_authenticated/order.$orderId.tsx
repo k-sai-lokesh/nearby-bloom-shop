@@ -33,13 +33,13 @@ function OrderDetail() {
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", orderId],
     queryFn: async () => {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)) return null;
       const { data } = await supabase
         .from("orders")
         .select(
           "id,total,status,address,city,created_at,estimated_delivery,delivery_proof_path,delivery_note,delivered_at,order_items(id,product_name,product_image,price,quantity)",
         )
-        // supports both full uuid and the short id shown in the UI / notifications
-        .or(`id.eq.${/^[0-9a-f-]{36}$/i.test(orderId) ? orderId : "00000000-0000-0000-0000-000000000000"}`)
+        .eq("id", orderId)
         .maybeSingle();
       return data;
     },
