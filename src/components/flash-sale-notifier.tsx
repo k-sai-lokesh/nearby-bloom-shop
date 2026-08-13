@@ -31,6 +31,7 @@ function useCountdown(endsAt: number) {
 }
 
 export function FlashSaleNotifier() {
+  const navigate = useNavigate();
   const [live, setLive] = useState<LiveSale[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
 
@@ -101,6 +102,10 @@ export function FlashSaleNotifier() {
                 ? `${formatPrice(sale.flash_price)} (${pct}% off) · ${stockLabel}`
                 : `Limited time · ${stockLabel}`,
               duration: 8000,
+              action: {
+                label: "View",
+                onClick: () => navigate({ to: "/product/$id", params: { id: sale.id } }),
+              },
             });
           } else if (!isOn && wasOn) {
             setLive((cur) => cur.filter((s) => s.id !== p.id));
@@ -112,7 +117,7 @@ export function FlashSaleNotifier() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [navigate]);
 
   const visible = live.filter((s) => !dismissed.has(s.id));
   if (visible.length === 0) return null;

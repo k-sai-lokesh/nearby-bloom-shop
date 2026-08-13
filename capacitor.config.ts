@@ -10,6 +10,8 @@ const config: CapacitorConfig = {
     url: "https://nearby-bloom-shop.lovable.app",
     cleartext: true,
   },
+  // Deep links: hyperlocal://product/<id>, hyperlocal://order/<id>, hyperlocal://category/<slug>
+  ios: { scheme: "hyperlocal" },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1200,
