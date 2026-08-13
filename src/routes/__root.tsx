@@ -120,6 +120,18 @@ function RootComponent() {
     return () => cleanup?.();
   }, [router]);
 
+  // Deep links from notifications / App Links -> in-app route
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    initDeepLinks((url) => {
+      const to = parseDeepLink(url);
+      if (to) router.navigate({ to, replace: false });
+    }).then((fn) => {
+      cleanup = fn ?? undefined;
+    });
+    return () => cleanup?.();
+  }, [router]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen flex flex-col pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0">
