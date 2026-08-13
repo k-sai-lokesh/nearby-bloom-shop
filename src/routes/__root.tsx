@@ -14,7 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
-import { initNativeShell } from "@/lib/native";
+import { initNativeShell, initDeepLinks } from "@/lib/native";
+import { parseDeepLink } from "@/lib/deep-links";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 
 function NotFoundComponent() {
