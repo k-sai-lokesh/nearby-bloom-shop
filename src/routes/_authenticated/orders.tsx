@@ -147,7 +147,12 @@ function Orders() {
                   </div>
                 ))}
               </div>
-              <p className="mt-4 text-xs text-muted-foreground">Delivering to {o.address}, {o.city}</p>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">Delivering to {o.address}, {o.city}</p>
+                <Link to="/order/$orderId" params={{ orderId: o.id }} className="text-primary text-sm underline shrink-0">
+                  View details
+                </Link>
+              </div>
             </Card>
           ))}
         </div>

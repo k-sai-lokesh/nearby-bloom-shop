@@ -6,7 +6,7 @@
  *   hyperlocal://product/<id>            -> /product/<id>
  *   hyperlocal://category/<slug>         -> /browse?cat=<slug>
  *   hyperlocal://search?q=bread          -> /browse?q=bread
- *   hyperlocal://order/<id>              -> /orders?order=<id>
+ *   hyperlocal://order/<id>              -> /order/<id> (detail: timeline + proof)
  *   hyperlocal://cart | /wishlist | /profile | /vendor | /browse | /
  *   https://<host>/product/<id>          -> same as above (App Links)
  */
@@ -26,7 +26,7 @@ export function tabForPath(pathname: string): TabKey {
   )
     return "browse";
   if (pathname.startsWith("/cart") || pathname.startsWith("/checkout")) return "cart";
-  if (pathname.startsWith("/orders")) return "orders";
+  if (pathname.startsWith("/orders") || pathname.startsWith("/order/")) return "orders";
   if (pathname.startsWith("/profile") || pathname.startsWith("/auth") || pathname.startsWith("/vendor"))
     return "profile";
   return "home";
@@ -76,8 +76,11 @@ export function parseDeepLink(rawUrl: string): string | null {
     case "search":
       return `/browse${qs({ q: search.get("q") ?? rest[0] ?? undefined })}`;
     case "order":
-    case "orders":
-      return `/orders${qs({ order: rest[0] ?? search.get("order") ?? undefined })}`;
+    case "orders": {
+      const id = rest[0] ?? search.get("order") ?? undefined;
+      if (head === "order" && id) return `/order/${id}`;
+      return `/orders${qs({ order: id })}`;
+    }
     case "browse":
       return `/browse${qs({ q: search.get("q") ?? undefined, cat: search.get("cat") ?? undefined })}`;
     case "cart":
