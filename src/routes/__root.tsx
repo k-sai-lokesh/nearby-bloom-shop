@@ -14,7 +14,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Toaster } from "@/components/ui/sonner";
 import { FlashSaleNotifier } from "@/components/flash-sale-notifier";
-import { initNativeShell } from "@/lib/native";
+import { initNativeShell, initDeepLinks } from "@/lib/native";
+import { parseDeepLink } from "@/lib/deep-links";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
 
 function NotFoundComponent() {
@@ -115,6 +116,18 @@ function RootComponent() {
   useEffect(() => {
     let cleanup: (() => void) | undefined;
     initNativeShell(() => router.history.back()).then((fn) => {
+      cleanup = fn ?? undefined;
+    });
+    return () => cleanup?.();
+  }, [router]);
+
+  // Deep links from notifications / App Links -> in-app route
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    initDeepLinks((url) => {
+      const to = parseDeepLink(url);
+      if (to) router.navigate({ to, replace: false });
+    }).then((fn) => {
       cleanup = fn ?? undefined;
     });
     return () => cleanup?.();

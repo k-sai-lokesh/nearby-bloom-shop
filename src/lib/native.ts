@@ -56,3 +56,24 @@ export async function tapFeedback() {
     /* haptics unavailable */
   }
 }
+
+/**
+ * Deep links: routes notification / App Link opens to an in-app path.
+ * Handles cold start (launch URL) and warm opens (appUrlOpen).
+ */
+export async function initDeepLinks(onDeepLink: (url: string) => void) {
+  if (!isNativeApp()) return;
+  try {
+    const { App } = await import("@capacitor/app");
+    const launch = await App.getLaunchUrl();
+    if (launch?.url) onDeepLink(launch.url);
+    const listener = await App.addListener("appUrlOpen", ({ url }) => {
+      if (url) onDeepLink(url);
+    });
+    return () => {
+      listener.remove();
+    };
+  } catch {
+    /* app plugin unavailable */
+  }
+}

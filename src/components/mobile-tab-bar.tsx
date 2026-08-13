@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Home, Search, ShoppingBag, Package, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { tapFeedback } from "@/lib/native";
+import { tabForPath, type TabKey } from "@/lib/deep-links";
 
 export function MobileTabBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -25,8 +26,8 @@ export function MobileTabBar() {
     },
   });
 
-  const isActive = (path: string) =>
-    path === "/" ? pathname === "/" : pathname.startsWith(path);
+  const activeTab = tabForPath(pathname);
+  const isActive = (tab: TabKey) => activeTab === tab;
 
   const itemClass = (active: boolean) =>
     cn(
@@ -40,7 +41,7 @@ export function MobileTabBar() {
       className="md:hidden fixed inset-x-0 bottom-0 z-50 glass-panel border-t border-glass-border pb-[env(safe-area-inset-bottom)]"
     >
       <div className="flex items-stretch">
-        <Link to="/" onClick={() => tapFeedback()} className={itemClass(isActive("/"))}>
+        <Link to="/" onClick={() => tapFeedback()} className={itemClass(isActive("home"))}>
           <Home className="h-5 w-5" />
           Home
         </Link>
@@ -49,13 +50,13 @@ export function MobileTabBar() {
           to="/browse"
           search={{ q: undefined, cat: undefined }}
           onClick={() => tapFeedback()}
-          className={itemClass(isActive("/browse"))}
+          className={itemClass(isActive("browse"))}
         >
           <Search className="h-5 w-5" />
           Browse
         </Link>
 
-        <Link to="/cart" onClick={() => tapFeedback()} className={itemClass(isActive("/cart"))}>
+        <Link to="/cart" onClick={() => tapFeedback()} className={itemClass(isActive("cart"))}>
           <span className="relative">
             <ShoppingBag className="h-5 w-5" />
             {cartCount > 0 && (
@@ -67,7 +68,7 @@ export function MobileTabBar() {
           Cart
         </Link>
 
-        <Link to="/orders" onClick={() => tapFeedback()} className={itemClass(isActive("/orders"))}>
+        <Link to="/orders" onClick={() => tapFeedback()} className={itemClass(isActive("orders"))}>
           <Package className="h-5 w-5" />
           Orders
         </Link>
@@ -76,7 +77,7 @@ export function MobileTabBar() {
           to={userId ? "/profile" : "/auth"}
           search={userId ? undefined : { redirect: undefined }}
           onClick={() => tapFeedback()}
-          className={itemClass(isActive("/profile") || isActive("/auth"))}
+          className={itemClass(isActive("profile"))}
         >
           <User className="h-5 w-5" />
           {userId ? "Profile" : "Sign in"}

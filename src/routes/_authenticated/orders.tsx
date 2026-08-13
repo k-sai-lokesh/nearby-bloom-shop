@@ -14,12 +14,12 @@ import { DeliveryProofView } from "@/components/delivery-proof";
 
 
 export const Route = createFileRoute("/_authenticated/orders")({
-  validateSearch: z.object({ placed: z.string().optional() }),
+  validateSearch: z.object({ placed: z.string().optional(), order: z.string().optional() }),
   component: Orders,
 });
 
 function Orders() {
-  const { placed } = Route.useSearch();
+  const { placed, order: focusedOrder } = Route.useSearch();
   const qc = useQueryClient();
 
   const { data: orders = [], isLoading } = useQuery({
@@ -68,6 +68,13 @@ function Orders() {
     };
   }, [qc]);
 
+  // Deep link: scroll the targeted order into view once loaded
+  useEffect(() => {
+    if (!focusedOrder || isLoading) return;
+    const el = document.getElementById(`order-${focusedOrder}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusedOrder, isLoading]);
+
   if (isLoading) return <div className="mx-auto max-w-5xl px-4 py-16">Loading…</div>;
 
   return (
@@ -93,7 +100,15 @@ function Orders() {
       ) : (
         <div className="space-y-4">
           {orders.map((o) => (
-            <Card key={o.id} className="p-5 rounded-2xl">
+            <Card
+              key={o.id}
+              id={`order-${o.id}`}
+              className={`p-5 rounded-2xl scroll-mt-24 ${
+                focusedOrder && (o.id === focusedOrder || o.id.startsWith(focusedOrder))
+                  ? "border-primary/50 shadow-[var(--shadow-glow)]"
+                  : ""
+              }`}
+            >
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="font-semibold">Order #{o.id.slice(0, 8)}</p>
