@@ -1,5 +1,6 @@
-import { Check, Loader2, Package, Truck, Home, ClipboardCheck } from "lucide-react";
-import { ORDER_STAGES, stageIndex, etaText } from "@/lib/order-status";
+import { useEffect, useState } from "react";
+import { Check, Loader2, Package, Truck, Home, ClipboardCheck, Wifi, WifiOff } from "lucide-react";
+import { ORDER_STAGES, stageIndex, etaText, statusLabel } from "@/lib/order-status";
 
 const ICONS = [ClipboardCheck, Package, Truck, Home];
 
@@ -9,13 +10,24 @@ export function OrderTracker({
   status,
   estimatedDelivery,
   events = [],
+  live,
 }: {
   status: string;
   estimatedDelivery?: string | null;
   events?: OrderEvent[];
+  live?: boolean;
 }) {
   const cancelled = status === "cancelled";
   const active = stageIndex(status);
+
+  // Keep the ETA copy ticking without waiting for a server event.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (cancelled || status === "delivered") return;
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, [cancelled, status]);
+
 
   return (
     <div className="rounded-2xl border border-border bg-muted/30 p-4">
@@ -28,8 +40,23 @@ export function OrderTracker({
           )}
           Delivery tracking
         </p>
-        <span className="text-xs text-muted-foreground">{etaText(estimatedDelivery, status)}</span>
+        <div className="flex items-center gap-2">
+          {live !== undefined && (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                live
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-border bg-muted text-muted-foreground"
+              }`}
+            >
+              {live ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {live ? "Live" : "Reconnecting"}
+            </span>
+          )}
+          <span className="text-xs text-muted-foreground">{etaText(estimatedDelivery, status)}</span>
+        </div>
       </div>
+
 
       {cancelled ? (
         <p className="text-sm text-destructive">This order was cancelled.</p>
@@ -63,15 +90,35 @@ export function OrderTracker({
       )}
 
       {events.length > 0 && (
-        <ul className="mt-4 space-y-1 border-t border-border pt-3">
-          {events.map((e) => (
-            <li key={e.id} className="flex justify-between gap-3 text-xs text-muted-foreground">
-              <span>{e.note ?? e.status}</span>
-              <span className="shrink-0">{new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-            </li>
-          ))}
-        </ul>
+        <ol className="mt-4 space-y-3 border-t border-border pt-3">
+          {events.map((e, i) => {
+            const latest = i === events.length - 1;
+            return (
+              <li key={e.id} className="relative flex gap-3 pl-4 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                {i < events.length - 1 && (
+                  <span aria-hidden className="absolute left-[3px] top-3 bottom-[-14px] w-px bg-border" />
+                )}
+                <span
+                  aria-hidden
+                  className={`absolute left-0 top-1.5 h-[7px] w-[7px] rounded-full ${
+                    latest ? "bg-primary ring-4 ring-primary/15" : "bg-border"
+                  }`}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${latest ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                    {statusLabel(e.status)}
+                  </p>
+                  {e.note && <p className="text-[11px] text-muted-foreground">{e.note}</p>}
+                </div>
+                <span className="shrink-0 text-[11px] text-muted-foreground">
+                  {new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       )}
+
     </div>
   );
 }

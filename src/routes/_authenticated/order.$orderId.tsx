@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +58,8 @@ function OrderDetail() {
     },
   });
 
+  const [live, setLive] = useState(false);
+
   useEffect(() => {
     if (!order?.id) return;
     const channel = supabase
@@ -79,11 +81,13 @@ function OrderDetail() {
         { event: "INSERT", schema: "public", table: "order_events", filter: `order_id=eq.${order.id}` },
         () => qc.invalidateQueries({ queryKey: ["order-events", orderId] }),
       )
-      .subscribe();
+      .subscribe((status) => setLive(status === "SUBSCRIBED"));
     return () => {
+      setLive(false);
       supabase.removeChannel(channel);
     };
   }, [order?.id, orderId, qc]);
+
 
   if (isLoading) return <div className="mx-auto max-w-3xl px-4 py-16">Loading…</div>;
 
@@ -129,7 +133,9 @@ function OrderDetail() {
           status={order.status}
           estimatedDelivery={order.estimated_delivery}
           events={events as OrderEvent[]}
+          live={live}
         />
+
 
         <DeliveryProofView
           path={order.delivery_proof_path}
