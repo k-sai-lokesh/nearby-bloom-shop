@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/format";
 import { Package, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
-import { toast } from "sonner";
 import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
 import { statusLabel } from "@/lib/order-status";
 import { DeliveryProofView } from "@/components/delivery-proof";

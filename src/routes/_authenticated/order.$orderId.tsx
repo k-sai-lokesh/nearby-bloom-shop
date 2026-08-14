@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/format";
 import { ArrowLeft, Package } from "lucide-react";
-import { toast } from "sonner";
 import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
 import { statusLabel } from "@/lib/order-status";
 import { DeliveryProofView } from "@/components/delivery-proof";
