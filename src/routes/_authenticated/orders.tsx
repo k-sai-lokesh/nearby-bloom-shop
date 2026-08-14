@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/format";
 import { Package, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
-import { toast } from "sonner";
 import { OrderTracker, type OrderEvent } from "@/components/order-tracker";
 import { statusLabel } from "@/lib/order-status";
 import { DeliveryProofView } from "@/components/delivery-proof";
@@ -50,15 +49,12 @@ function Orders() {
   useEffect(() => {
     const channel = supabase
       .channel("order-tracking")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
-        const next = payload.new as { status: string };
-        const prev = payload.old as { status?: string };
-        if (next.status !== prev?.status) {
-          toast.success(`Order update: ${statusLabel(next.status)}`);
-        }
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => {
+        // Toasts are handled app-wide by <OrderNotifier />.
         qc.invalidateQueries({ queryKey: ["orders"] });
         qc.invalidateQueries({ queryKey: ["order-events"] });
       })
+
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "order_events" }, () => {
         qc.invalidateQueries({ queryKey: ["order-events"] });
       })
