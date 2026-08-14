@@ -40,8 +40,23 @@ export function OrderTracker({
           )}
           Delivery tracking
         </p>
-        <span className="text-xs text-muted-foreground">{etaText(estimatedDelivery, status)}</span>
+        <div className="flex items-center gap-2">
+          {live !== undefined && (
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                live
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-border bg-muted text-muted-foreground"
+              }`}
+            >
+              {live ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {live ? "Live" : "Reconnecting"}
+            </span>
+          )}
+          <span className="text-xs text-muted-foreground">{etaText(estimatedDelivery, status)}</span>
+        </div>
       </div>
+
 
       {cancelled ? (
         <p className="text-sm text-destructive">This order was cancelled.</p>
