@@ -1,5 +1,6 @@
-import { Check, Loader2, Package, Truck, Home, ClipboardCheck } from "lucide-react";
-import { ORDER_STAGES, stageIndex, etaText } from "@/lib/order-status";
+import { useEffect, useState } from "react";
+import { Check, Loader2, Package, Truck, Home, ClipboardCheck, Wifi, WifiOff } from "lucide-react";
+import { ORDER_STAGES, stageIndex, etaText, statusLabel } from "@/lib/order-status";
 
 const ICONS = [ClipboardCheck, Package, Truck, Home];
 
@@ -9,13 +10,24 @@ export function OrderTracker({
   status,
   estimatedDelivery,
   events = [],
+  live,
 }: {
   status: string;
   estimatedDelivery?: string | null;
   events?: OrderEvent[];
+  live?: boolean;
 }) {
   const cancelled = status === "cancelled";
   const active = stageIndex(status);
+
+  // Keep the ETA copy ticking without waiting for a server event.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (cancelled || status === "delivered") return;
+    const id = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, [cancelled, status]);
+
 
   return (
     <div className="rounded-2xl border border-border bg-muted/30 p-4">
