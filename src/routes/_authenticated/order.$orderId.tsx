@@ -67,14 +67,13 @@ function OrderDetail() {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${order.id}` },
-        (payload) => {
-          const next = payload.new as { status: string };
-          const prev = payload.old as { status?: string };
-          if (next.status !== prev?.status) toast.success(`Order update: ${statusLabel(next.status)}`);
+        () => {
+          // Toasts are handled app-wide by <OrderNotifier />.
           qc.invalidateQueries({ queryKey: ["order", orderId] });
           qc.invalidateQueries({ queryKey: ["order-events", orderId] });
           qc.invalidateQueries({ queryKey: ["orders"] });
         },
+
       )
       .on(
         "postgres_changes",
