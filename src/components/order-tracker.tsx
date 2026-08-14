@@ -90,15 +90,35 @@ export function OrderTracker({
       )}
 
       {events.length > 0 && (
-        <ul className="mt-4 space-y-1 border-t border-border pt-3">
-          {events.map((e) => (
-            <li key={e.id} className="flex justify-between gap-3 text-xs text-muted-foreground">
-              <span>{e.note ?? e.status}</span>
-              <span className="shrink-0">{new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-            </li>
-          ))}
-        </ul>
+        <ol className="mt-4 space-y-3 border-t border-border pt-3">
+          {events.map((e, i) => {
+            const latest = i === events.length - 1;
+            return (
+              <li key={e.id} className="relative flex gap-3 pl-4 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                {i < events.length - 1 && (
+                  <span aria-hidden className="absolute left-[3px] top-3 bottom-[-14px] w-px bg-border" />
+                )}
+                <span
+                  aria-hidden
+                  className={`absolute left-0 top-1.5 h-[7px] w-[7px] rounded-full ${
+                    latest ? "bg-primary ring-4 ring-primary/15" : "bg-border"
+                  }`}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className={`text-xs ${latest ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                    {statusLabel(e.status)}
+                  </p>
+                  {e.note && <p className="text-[11px] text-muted-foreground">{e.note}</p>}
+                </div>
+                <span className="shrink-0 text-[11px] text-muted-foreground">
+                  {new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
       )}
+
     </div>
   );
 }
