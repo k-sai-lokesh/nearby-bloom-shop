@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -133,7 +133,9 @@ function OrderDetail() {
           status={order.status}
           estimatedDelivery={order.estimated_delivery}
           events={events as OrderEvent[]}
+          live={live}
         />
+
 
         <DeliveryProofView
           path={order.delivery_proof_path}
